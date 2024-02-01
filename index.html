@@ -59,7 +59,7 @@
               <input type="text" class="form-control" id="productName">
             </div>
             <div class="mb-3">
-              <label for="pricePerUnit" class="form-label">Price per Unit:</label>
+              <label for="pricePerUnit" class="form-label">Price per Unit (INR):</label>
               <input type="number" class="form-control" id="pricePerUnit">
             </div>
             <div class="mb-3">
@@ -92,13 +92,11 @@
     <div class="row mt-5">
       <div class="col">
         <button type="button" class="btn btn-success" onclick="generateInvoice()">Generate Invoice</button>
-        <a href="#" class="btn btn-primary" id="downloadLink" download="proforma_invoice.pdf">Download PDF</a>
+        <a href="#" class="btn btn-primary" id="downloadLink" download="proforma_invoice.txt">Download Text</a>
       </div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
   <script>
     let products = [];
 
@@ -154,26 +152,20 @@
       let totalAmount = 0;
       for (const product of products) {
         const total = product.pricePerUnit * product.quantity;
-        invoiceDetails += `${product.productName} - ${product.quantity} ${product.unit} x ${product.pricePerUnit} INR: ${total} INR\n`;
-        totalAmount += total;
+        const gstAmount = total * 0.18;
+        const totalWithGST = total + gstAmount;
+        invoiceDetails += `${product.productName} - ${product.quantity} ${product.unit} x ${product.pricePerUnit} INR (GST 18%: ${gstAmount} INR) = ${totalWithGST} INR\n`;
+        totalAmount += totalWithGST;
       }
 
-      const gstAmount = totalAmount * 0.18;
-      const totalAmountWithGST = totalAmount + gstAmount;
-
       invoiceDetails += `\nTotal Amount: ${totalAmount} INR\n`;
-      invoiceDetails += `GST (18%): ${gstAmount} INR\n`;
-      invoiceDetails += `Total Amount (Including GST): ${totalAmountWithGST} INR\n`;
 
       document.getElementById('invoiceDetails').value = invoiceDetails;
 
-      // Create PDF
-      const pdf = new jsPDF();
-      pdf.text(invoiceDetails, 10, 10);
-
-      // Save PDF using FileSaver.js
-      const blob = pdf.output('blob');
-      saveAs(blob, 'proforma_invoice.pdf');
+      // Save text file
+      const blob = new Blob([invoiceDetails], { type: 'text/plain' });
+      const downloadLink = document.getElementById('downloadLink');
+      downloadLink.href = window.URL.createObjectURL(blob);
     }
   </script>
 </body>
