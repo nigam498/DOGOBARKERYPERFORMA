@@ -98,6 +98,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
   <script>
     let products = [];
 
@@ -170,11 +171,8 @@
       const pdf = new jsPDF();
       pdf.text(invoiceDetails, 10, 10);
 
-      // Save PDF and initiate download
-      const pdfBlob = pdf.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const downloadLink = document.getElementById('downloadLink');
-      downloadLink.href = pdfUrl;
+      // Save PDF using FileSaver.js
+      pdf.save('proforma_invoice.pdf');
     }
   </script>
 </body>
