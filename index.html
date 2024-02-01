@@ -170,8 +170,11 @@
       const pdf = new jsPDF();
       pdf.text(invoiceDetails, 10, 10);
 
-      // Download PDF
-      pdf.save('proforma_invoice.pdf');
+      // Save PDF and initiate download
+      const pdfBlob = pdf.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const downloadLink = document.getElementById('downloadLink');
+      downloadLink.href = pdfUrl;
     }
   </script>
 </body>
