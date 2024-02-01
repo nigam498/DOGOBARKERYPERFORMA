@@ -92,7 +92,7 @@
     <div class="row mt-5">
       <div class="col">
         <button type="button" class="btn btn-success" onclick="generateInvoice()">Generate Invoice</button>
-        <button type="button" class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+        <a href="#" class="btn btn-primary" id="downloadLink" download="proforma_invoice.pdf">Download PDF</a>
       </div>
     </div>
   </div>
@@ -165,14 +165,12 @@
       invoiceDetails += `Total Amount (Including GST): ${totalAmountWithGST} INR\n`;
 
       document.getElementById('invoiceDetails').value = invoiceDetails;
-      alert('Proforma invoice generated successfully.');
-    }
 
-    function downloadPDF() {
-      const invoiceDetails = document.getElementById('invoiceDetails').value;
-
+      // Create PDF
       const pdf = new jsPDF();
       pdf.text(invoiceDetails, 10, 10);
+
+      // Download PDF
       pdf.save('proforma_invoice.pdf');
     }
   </script>
