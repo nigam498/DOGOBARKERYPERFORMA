@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dogo Barkery - Personal Proforma Invoice</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-5">Dogo Barkery - Personal Proforma Invoice</h1>
+    <div class="row mt-5">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Seller Details</h5>
+            <div class="mb-3">
+              <label for="sellerName" class="form-label">Name:</label>
+              <input type="text" class="form-control" id="sellerName">
+            </div>
+            <div class="mb-3">
+              <label for="sellerGST" class="form-label">GST Number:</label>
+              <input type="text" class="form-control" id="sellerGST">
+            </div>
+            <div class="mb-3">
+              <label for="sellerAddress" class="form-label">Address:</label>
+              <textarea class="form-control" id="sellerAddress" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Buyer Details</h5>
+            <div class="mb-3">
+              <label for="buyerName" class="form-label">Name:</label>
+              <input type="text" class="form-control" id="buyerName">
+            </div>
+            <div class="mb-3">
+              <label for="buyerGST" class="form-label">GST Number:</label>
+              <input type="text" class="form-control" id="buyerGST">
+            </div>
+            <div class="mb-3">
+              <label for="buyerAddress" class="form-label">Address:</label>
+              <textarea class="form-control" id="buyerAddress" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Products</h5>
+            <div class="mb-3">
+              <label for="productName" class="form-label">Product Name:</label>
+              <input type="text" class="form-control" id="productName">
+            </div>
+            <div class="mb-3">
+              <label for="pricePerUnit" class="form-label">Price per Unit:</label>
+              <input type="number" class="form-control" id="pricePerUnit">
+            </div>
+            <div class="mb-3">
+              <label for="unit" class="form-label">Unit:</label>
+              <select class="form-select" id="unit">
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+                <option value="pcs">pcs</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Quantity:</label>
+              <input type="number" class="form-control" id="quantity">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addProduct()">Add Product</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Invoice Details</h5>
+            <textarea class="form-control" id="invoiceDetails" rows="10" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col">
+        <button type="button" class="btn btn-success" onclick="generateInvoice()">Generate Invoice</button>
+        <button type="button" class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+  <script>
+    let products = [];
+
+    function addProduct() {
+      const productName = document.getElementById('productName').value;
+      const pricePerUnit = parseFloat(document.getElementById('pricePerUnit').value);
+      const unit = document.getElementById('unit').value;
+      const quantity = parseFloat(document.getElementById('quantity').value);
+
+      if (!productName || isNaN(pricePerUnit) || isNaN(quantity) || quantity <= 0 || pricePerUnit <= 0) {
+        alert('Please fill all product details with valid values.');
+        return;
+      }
+
+      products.push({ productName, pricePerUnit, unit, quantity });
+      alert(`Product '${productName}' added successfully.`);
+      clearProductFields();
+    }
+
+    function clearProductFields() {
+      document.getElementById('productName').value = '';
+      document.getElementById('pricePerUnit').value = '';
+      document.getElementById('quantity').value = '';
+    }
+
+    function generateInvoice() {
+      const sellerName = document.getElementById('sellerName').value;
+      const sellerGST = document.getElementById('sellerGST').value;
+      const sellerAddress = document.getElementById('sellerAddress').value;
+      const buyerName = document.getElementById('buyerName').value;
+      const buyerGST = document.getElementById('buyerGST').value;
+      const buyerAddress = document.getElementById('buyerAddress').value;
+
+      if (!sellerName || !sellerGST || !sellerAddress || !buyerName || !buyerGST || !buyerAddress) {
+        alert('Please fill all seller and buyer details.');
+        return;
+      }
+
+      if (products.length === 0) {
+        alert('Please add at least one product.');
+        return;
+      }
+
+      let invoiceDetails = '';
+      invoiceDetails += `Seller Name: ${sellerName}\n`;
+      invoiceDetails += `Seller GST Number: ${sellerGST}\n`;
+      invoiceDetails += `Seller Address: ${sellerAddress}\n\n`;
+      invoiceDetails += `Buyer Name: ${buyerName}\n`;
+      invoiceDetails += `Buyer GST Number: ${buyerGST}\n`;
+      invoiceDetails += `Buyer Address: ${buyerAddress}\n\n`;
+      invoiceDetails += 'Products:\n';
+
+      let totalAmount = 0;
+      for (const product of products) {
+        const total = product.pricePerUnit * product.quantity;
+        invoiceDetails += `${product.productName} - ${product.quantity} ${product.unit} x ${product.pricePerUnit} INR: ${total} INR\n`;
+        totalAmount += total;
+      }
+
+      const gstAmount = totalAmount * 0.18;
+      const totalAmountWithGST = totalAmount + gstAmount;
+
+      invoiceDetails += `\nTotal Amount: ${totalAmount} INR\n`;
+      invoiceDetails += `GST (18%): ${gstAmount} INR\n`;
+      invoiceDetails += `Total Amount (Including GST): ${totalAmountWithGST} INR\n`;
+
+      document.getElementById('invoiceDetails').value = invoiceDetails;
+      alert('Proforma invoice generated successfully.');
+    }
+
+    function downloadPDF() {
+      const invoiceDetails = document.getElementById('invoiceDetails').value;
+
+      const pdf = new jsPDF();
+      pdf.text(invoiceDetails, 10, 10);
+      pdf.save('proforma_invoice.pdf');
+    }
+  </script>
+</body>
+</html>
