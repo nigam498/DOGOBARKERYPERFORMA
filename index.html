@@ -172,7 +172,8 @@
       pdf.text(invoiceDetails, 10, 10);
 
       // Save PDF using FileSaver.js
-      pdf.save('proforma_invoice.pdf');
+      const blob = pdf.output('blob');
+      saveAs(blob, 'proforma_invoice.pdf');
     }
   </script>
 </body>
